@@ -86,7 +86,7 @@ const ProfilePage = () => {
                   {website}
                 </a>
                 <button className="edit-btn" onClick={() => setEditing(true)}>
-                  <FaEdit /> Edit Details
+                  <FaEdit /> Edit Detail
                 </button>
               </>
             )}
