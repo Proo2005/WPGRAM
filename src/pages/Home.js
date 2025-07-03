@@ -2,11 +2,13 @@
 import React, { useState } from "react";
 import "../style/Home.css";
 import {
-  FaMoon, FaSearch, FaUser, FaCog, FaHome, FaUsers, FaVideo, FaClock,
+  FaMoon, FaSearch, FaUser, FaCog, FaHome, FaUsers, 
   FaHeart, FaShare, FaComment, FaArrowLeft
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
+
+// USERS IN STORY
 const users = [
   { name: "Alice", id: 1, img: "./profile/p1.png" },
   { name: "Bob", id: 2, img: "./profile/p2.png" },
@@ -15,6 +17,8 @@ const users = [
   { name: "Eve", id: 5, img: "./profile/p5.png" }
 ];
 
+
+// USERS IN POSTS
 const initialPosts = [
   { id: 1, name: "Alice", image: "./images/nike.jpg", likes: 0, liked: false },
   { id: 2, name: "Bob", image: "./images/shoe.jpg", likes: 0, liked: false },
@@ -23,28 +27,37 @@ const initialPosts = [
   { id: 5, name: "Eve", image: "./images/nike.jpg", likes: 0, liked: false }
 ];
 
+
+//USER IN MESSAGE
 const messages = {
   1: ["Hey Alice!"],
   2: ["Hi Bob!"],
 };
 
+
+// MY PROFILE IMAGE
 const userProfileImage = "./profile/p1.png";
 
+
+
+
 const HomePage = () => {
-  const [activeChat, setActiveChat] = useState(null);
-  const [messageInput, setMessageInput] = useState("");
-  const [chatData, setChatData] = useState(messages);
-  const [darkMode, setDarkMode] = useState(true);
-  const [posts, setPosts] = useState(initialPosts);
-  const [activeCommentPost, setActiveCommentPost] = useState(null);
-  const [commentInput, setCommentInput] = useState("");
-  const [comments, setComments] = useState({});
-  const [searchQuery, setSearchQuery] = useState("");
-  const navigate = useNavigate();
+  const [activeChat, setActiveChat] = useState(null);                // CHAT MENU
+  const [messageInput, setMessageInput] = useState("");              // MESSAGE INPUT IN RIGHT BOX
+  const [chatData, setChatData] = useState(messages);                // CHAT DATA IN RIGHT BOX
+  const [activeCommentPost, setActiveCommentPost] = useState(null);  // POST COMMENT FEED BOX
+  const [commentInput, setCommentInput] = useState("");              // COMMENT INPUT IN COMMENT FEED BOX
+  const [comments, setComments] = useState({});                      // COMMENTS IN COMMENT FEED BOX
+  const [searchQuery, setSearchQuery] = useState("");                // SERACH BOX SEARCH QUERY TOP BAR
+  const [posts, setPosts] = useState(initialPosts);                  // USER POSTS
+  const [darkMode, setDarkMode] = useState(true);                    // DARKMODE TOGGLE ON OFF
+  const navigate = useNavigate();                                    // NAVIGATION
 
 
   const username = localStorage.getItem("username") || "Your Name";
+  
 
+  // RIGHT BOX SEND MESSAGE
   const handleSendMessage = () => {
     if (!messageInput.trim()) return;
     setChatData((prev) => ({
@@ -54,11 +67,14 @@ const HomePage = () => {
     setMessageInput("");
   };
 
+  // BLACK MODE ON OFF TOGGLE
   const toggleTheme = () => {
     setDarkMode(!darkMode);
     document.body.classList.toggle("light-theme", !darkMode);
   };
+  
 
+  //LIKE POST FEED BOX
   const handleLike = (id) => {
     setPosts(posts.map((post) =>
       post.id === id
@@ -66,13 +82,17 @@ const HomePage = () => {
         : post
     ));
   };
+  
 
+  // GENERATE LINK OF POST TO SHARE TO OTHERS
   const handleShare = (imageUrl) => {
     const fullUrl = window.location.origin + "/" + imageUrl.replace("./", "");
     navigator.clipboard.writeText(fullUrl);
     alert("Image link copied to clipboard: " + fullUrl);
   };
+  
 
+  // COMMENT SEND IN POST WITH DELETE BUTTON
   const handleSendComment = () => {
     if (!commentInput.trim()) return;
 
@@ -91,6 +111,18 @@ const HomePage = () => {
 
     setCommentInput("");
   };
+
+  // COMMENT DELETE IN POST WITH DELETE BUTTON
+  const deleteComment = (postId, commentId) => {
+    setComments((prev) => ({
+      ...prev,
+      [postId]: prev[postId].filter((c) => c.id !== commentId),
+    }));
+  };
+
+
+
+  // POST LIKE OR UNLIKE FEED 
   const toggleCommentLike = (postId, commentId) => {
     setComments((prev) => ({
       ...prev,
@@ -99,14 +131,9 @@ const HomePage = () => {
       ),
     }));
   };
+  
 
-  const deleteComment = (postId, commentId) => {
-    setComments((prev) => ({
-      ...prev,
-      [postId]: prev[postId].filter((c) => c.id !== commentId),
-    }));
-  };
-
+  
 
 
 
@@ -122,7 +149,7 @@ const HomePage = () => {
           <div className="search-bar">
             <FaSearch />
             <div className="input-wrapper">
-              <label className="floating-label">Search...</label>
+             
               <input
                 type="text"
                 value={searchQuery}
@@ -174,9 +201,6 @@ const HomePage = () => {
           <div className="menu">
             <div><FaHome className="nav-icon" /> Home</div>
             <div><FaUsers className="nav-icon" /> Friends</div>
-            <div><FaUsers className="nav-icon" /> Groups</div>
-            <div><FaVideo className="nav-icon" /> Shorts</div>
-            <div><FaClock className="nav-icon" /> Watch Later</div>
             <div onClick={() => navigate('/profile')} style={{ cursor: "pointer" }}>
               <FaCog className="nav-icon" /> Settings
             </div>

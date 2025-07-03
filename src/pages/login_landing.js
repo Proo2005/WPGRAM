@@ -1,18 +1,26 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../style/login_landing.css";
 import { useNavigate } from "react-router-dom";
+import { mockUsers } from "../data/User";
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const [isSignup, setIsSignup] = useState(false);
   const googleButton = useRef(null);
-  const navigate = useNavigate();
   const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
+  // Try to read users from localStorage first
+  const getStoredUsers = () => {
+    const saved = localStorage.getItem("users");
+    return saved ? JSON.parse(saved) : mockUsers;
+  };
+
+  // Google login setup
   useEffect(() => {
     const handleCredentialResponse = (response) => {
       console.log("Google JWT ID Token:", response.credential);
       alert("Signed in with Google!");
-      navigate("/home"); // Redirect on Google sign-in
+      navigate("/home");
     };
 
     if (window.google && clientId) {
@@ -31,28 +39,68 @@ const LoginPage = () => {
     }
   }, [clientId, navigate]);
 
-  const handleSubmit = (e) => {
+  // ✅ MAKE THIS ASYNC
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const enteredUsernameOrEmail = e.target[0].value.trim().toLowerCase();
+    const enteredPassword = e.target[1].value;
+    let allUsers = getStoredUsers();
+
     if (isSignup) {
-      alert("Sign Up Submitted");
-      const isValidSignup = true; // Replace with actual validation
-      if (isValidSignup) {
-        const username = e.target[0].value; // or from state
-        localStorage.setItem("username", username);
-        navigate("/home");
+      const username = enteredUsernameOrEmail;
+      const email = username.includes("@") ? username : `${username}@mail.com`;
+      const img = "./profile/default.png";
+
+      const exists = allUsers.some(
+        (user) => user.username === username || user.email === email
+      );
+
+      if (exists) {
+        alert("User already exists.");
       } else {
-        alert("Please fill all sign-up details correctly.");
+        try {
+          const response = await fetch("http://localhost:5000/api/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, email, password: enteredPassword, img }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            localStorage.setItem("username", data.username);
+            localStorage.setItem("profile", data.img);
+            navigate("/home");
+          } else {
+            alert(data.message || "Signup failed.");
+          }
+        } catch (err) {
+          alert("Server error during signup.");
+        }
       }
     } else {
-      alert("Login Submitted");
-      const isValidLogin = true; // Replace with real login logic
-      if (isValidLogin) {
-        const username = e.target[0].value; // or from state
-        localStorage.setItem("username", username);
-        navigate("/home");
-      } else {
-        alert("Invalid username or password.");
+      try {
+        const response = await fetch("http://localhost:5000/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            identifier: enteredUsernameOrEmail,
+            password: enteredPassword,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          localStorage.setItem("username", data.username);
+          localStorage.setItem("profile", data.img);
+          navigate("/home");
+        } else {
+          alert("Invalid username/email or password.");
+        }
+      } catch (err) {
+        alert("Server error during login.");
       }
     }
   };
@@ -67,12 +115,9 @@ const LoginPage = () => {
         <form onSubmit={handleSubmit}>
           {isSignup ? (
             <>
-              <input type="text" placeholder="First Name" />
-              <input type="text" placeholder="Middle Name" />
-              <input type="text" placeholder="Last Name" />
-              <input type="email" placeholder="Email" />
-              <input type="password" placeholder="Password" />
-              <input type="password" placeholder="Confirm Password" />
+              <input type="text" placeholder="Username" required />
+              <input type="password" placeholder="Password" required />
+              <input type="password" placeholder="Confirm Password" required />
               <div className="checkbox-group">
                 <input type="checkbox" id="terms" />
                 <label htmlFor="terms">I agree to the terms and conditions</label>
@@ -81,8 +126,8 @@ const LoginPage = () => {
             </>
           ) : (
             <>
-              <input type="text" placeholder="Username or Email" />
-              <input type="password" placeholder="Password" />
+              <input type="text" placeholder="Username or Email" required />
+              <input type="password" placeholder="Password" required />
               <button type="submit">Login</button>
               <div ref={googleButton} className="google-signup-button"></div>
             </>
