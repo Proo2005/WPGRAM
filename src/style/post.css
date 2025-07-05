@@ -1,0 +1,72 @@
+.post-page-container {
+  padding: 2rem;
+  color: white;
+  max-width: 700px;
+  margin: auto;
+}
+
+.post-header {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.button-group button {
+  background: linear-gradient(to right, #ff00cc, #3333ff);
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.preview-section img {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-top: 1rem;
+}
+
+.preview-section button {
+  margin-top: 0.5rem;
+  background: #22c55e;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  cursor: pointer;
+}
+
+.feed {
+  margin-top: 2rem;
+}
+
+.post {
+  background: #1e1e1e;
+  padding: 1rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+}
+
+.post-header {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.post img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.post-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  font-size: 1.2rem;
+}

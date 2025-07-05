@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import "../style/Home.css";
 import {
-  FaMoon, FaSearch, FaUser, FaCog, FaHome, FaUsers, 
+  FaMoon, FaSearch, FaUser, FaCog, FaHome, FaUsers,
   FaHeart, FaShare, FaComment, FaArrowLeft
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
@@ -32,6 +32,10 @@ const initialPosts = [
 const messages = {
   1: ["Hey Alice!"],
   2: ["Hi Bob!"],
+  3: ["Hello Charlie!"],
+  4: ["Hi Daisy!"],
+  5: ["Hey Eve!"]
+
 };
 
 
@@ -53,9 +57,14 @@ const HomePage = () => {
   const [darkMode, setDarkMode] = useState(true);                    // DARKMODE TOGGLE ON OFF
   const navigate = useNavigate();                                    // NAVIGATION
 
+  const [followedUsers, setFollowedUsers] = useState(() => {         // FOLLOWED USERS
+    return JSON.parse(localStorage.getItem("followedUsers")) || [];
+  });
 
-  const username = localStorage.getItem("username") || "Your Name";
-  
+
+  const username = localStorage.getItem("username") || "Your Name";  //LOCALSTORAGE USERNAME ACCESS
+
+
 
   // RIGHT BOX SEND MESSAGE
   const handleSendMessage = () => {
@@ -72,7 +81,7 @@ const HomePage = () => {
     setDarkMode(!darkMode);
     document.body.classList.toggle("light-theme", !darkMode);
   };
-  
+
 
   //LIKE POST FEED BOX
   const handleLike = (id) => {
@@ -82,7 +91,7 @@ const HomePage = () => {
         : post
     ));
   };
-  
+
 
   // GENERATE LINK OF POST TO SHARE TO OTHERS
   const handleShare = (imageUrl) => {
@@ -90,7 +99,7 @@ const HomePage = () => {
     navigator.clipboard.writeText(fullUrl);
     alert("Image link copied to clipboard: " + fullUrl);
   };
-  
+
 
   // COMMENT SEND IN POST WITH DELETE BUTTON
   const handleSendComment = () => {
@@ -131,9 +140,33 @@ const HomePage = () => {
       ),
     }));
   };
-  
 
-  
+
+  // Follow or Unfollow user
+  const handleFollow = (name) => {
+    let updatedList;
+    if (followedUsers.includes(name)) {
+      updatedList = followedUsers.filter((n) => n !== name);
+    } else {
+      updatedList = [...followedUsers, name];
+    }
+
+    setFollowedUsers(updatedList);
+    localStorage.setItem("followedUsers", JSON.stringify(updatedList));
+
+    // Update current user's data in localStorage.users[]
+    const currentUser = localStorage.getItem("username");
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+
+    const updatedUsers = users.map((u) =>
+      u.username === currentUser
+        ? { ...u, following: updatedList.length }
+        : u
+    );
+
+    localStorage.setItem("users", JSON.stringify(updatedUsers));
+  };
+
 
 
 
@@ -149,7 +182,7 @@ const HomePage = () => {
           <div className="search-bar">
             <FaSearch />
             <div className="input-wrapper">
-             
+
               <input
                 type="text"
                 value={searchQuery}
@@ -200,7 +233,9 @@ const HomePage = () => {
           </div>
           <div className="menu">
             <div><FaHome className="nav-icon" /> Home</div>
-            <div><FaUsers className="nav-icon" /> Friends</div>
+            <div onClick={() => navigate('/post')} style={{ cursor: "pointer" }}>
+              <FaUsers className="nav-icon" />Posts
+            </div>
             <div onClick={() => navigate('/profile')} style={{ cursor: "pointer" }}>
               <FaCog className="nav-icon" /> Settings
             </div>
@@ -220,7 +255,7 @@ const HomePage = () => {
                   className="glow-avatar-img"
                 />
               </div>
-              <span> + Your story </span>
+              <span onClick={() => navigate("/post")} className="storyfeed"> + Your story </span>
             </div>
 
             {/* Other user stories */}
@@ -247,7 +282,18 @@ const HomePage = () => {
                     />
                   </div>
                   <span>{post.name}</span>
+
+                  {/* Follow Button */}
+                  {post.name !== username && (
+                    <button
+                      className="follow-btn"
+                      onClick={() => handleFollow(post.name)}
+                    >
+                      {followedUsers.includes(post.name) ? "Following" : "Follow"}
+                    </button>
+                  )}
                 </div>
+
 
                 <img src={post.image} alt="Post" />
                 <div className="post-actions">
