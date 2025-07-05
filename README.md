@@ -7,6 +7,9 @@ start app
 https://wpgram.netlify.app/
 
 
+sample passcodes :
+https://github.com/Proo2005/WPgram_backend/blob/main/users.json
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
